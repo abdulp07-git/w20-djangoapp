@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: car
+      POSTGRES_USER: admin_user
+      POSTGRES_PASSWORD: password123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - django_network
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_DB_ENGINE=django.db.backends.postgresql
+      - DJANGO_DB_NAME=car
+      - DJANGO_DB_USER=admin_user
+      - DJANGO_DB_PASSWORD=password123
+      - DJANGO_DB_HOST=db
+    depends_on:
+      - db
+    networks:
+      - django_network
+
+volumes:
+  postgres_data:
+
+networks:
+  django_network:
+

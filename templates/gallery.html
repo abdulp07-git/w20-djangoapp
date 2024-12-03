@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container my-4">
+    <h2 class="text-center mb-4">Image Gallery</h2>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        {% for letter in "abcdefgh" %}
+            <div class="col">
+                <div class="card h-100">
+                   <!--
+                    <img src="https://intogallery.s3.ap-south-1.amazonaws.com/{{ letter }}.png" class="card-img-top" alt="Image {{ letter }}">
+                    
+                    <img src="https://d36kmhptotmcip.cloudfront.net/{{ letter }}.png" class="card-img-top" alt="Image {{ letter }}">
+                    
+                    <img src="https://d33frleuz6dkp9.cloudfront.net/{{ letter }}.png" class="card-img-top" alt="Image {{ letter }}">
+                    -->
+                    <img src="{% static letter|add:'.png' %}" class="card-img-top" alt="Image {{ letter }}">                    
+
+                    <div class="card-body text-center">
+                        <p class="card-text">Image {{ letter|upper }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

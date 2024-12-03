@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container d-flex justify-content-center">
+        <form action="{% url 'result' %}" method="POST" class="mt-4 p-4 border rounded" style="width: 40%; background-color: rgba(255, 212, 59, 0.5);">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="val1" class="form-label">First Number</label>
+                <input type="text" id="val1" name="val1" class="form-control" placeholder="Enter first value">
+            </div>
+            <div class="mb-3">
+                <label for="val2" class="form-label">Second Number</label>
+                <input type="text" id="val2" name="val2" class="form-control" placeholder="Enter second value">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Add</button>
+        </form>
+    </div>
+{% endblock %}

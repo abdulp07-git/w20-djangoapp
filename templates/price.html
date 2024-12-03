@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-4">
+    <h2 class="text-center mb-4">Car Price Details</h2>
+    
+    <p><strong>Car Maker:</strong> {{ car_maker }}</p>
+    <p><strong>Car Model:</strong> {{ car_model }}</p>
+
+    {% if car_price %}
+        <p><strong>Price:</strong> {{ car_price }}</p>
+    {% else %}
+        <p class="text-danger">Price not available for the selected car model.</p>
+    {% endif %}
+</div>
+{% endblock %}

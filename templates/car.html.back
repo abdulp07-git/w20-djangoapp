@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container my-4">
+    <h2 class="text-center mb-4">Car Price Lookup</h2>
+    <form id="carForm" class="form-inline" style="width: 40%">
+        <div class="mb-3">
+            <label for="carMaker" class="form-label">Car Maker</label>
+            <select id="carMaker" class="form-select" name="carMaker">
+                <option selected disabled>Select a car maker</option>
+                {% for maker in car_makers %}
+                    <option value="{{ maker.id }}">{{ maker.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="carModel" class="form-label">Car Model</label>
+            <select id="carModel" class="form-select" name="carModel" disabled>
+                <option selected disabled>Select a model</option>
+                <!-- Options will be dynamically loaded here -->
+            </select>
+        </div>
+
+        <button type="button" id="fetchPriceBtn" class="btn btn-primary">Price</button>
+    </form>
+
+    <div class="mt-4" id="priceDisplay" style="display: none;">
+        <h4>Price: <span id="priceValue"></span></h4>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const carMakerDropdown = document.getElementById('carMaker');
+    const carModelDropdown = document.getElementById('carModel');
+    const priceDisplay = document.getElementById('priceDisplay');
+    const priceValue = document.getElementById('priceValue');
+
+    // Event listener for car maker dropdown change
+    carMakerDropdown.addEventListener('change', function() {
+        const makerId = carMakerDropdown.value;
+        
+        // Fetch car models based on selected maker
+        fetch(`/get_models/${makerId}/`)
+            .then(response => response.json())
+            .then(data => {
+                carModelDropdown.innerHTML = '<option selected disabled>Select a model</option>';
+                data.models.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model.id;
+                    option.text = model.name;
+                    carModelDropdown.appendChild(option);
+                });
+                carModelDropdown.disabled = false;
+            });
+    });
+
+    // Event listener for price fetch button
+    document.getElementById('fetchPriceBtn').addEventListener('click', function() {
+        const modelId = carModelDropdown.value;
+
+        if (modelId) {
+            // Fetch price based on selected model
+            fetch(`/get_price/${modelId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    priceValue.textContent = data.price;
+                    priceDisplay.style.display = 'block';
+                });
+        }
+    });
+});
+</script>
+{% endblock %}

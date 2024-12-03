@@ -1,0 +1,154 @@
+If using Helm chart
+
+Django Allowed host can cause issues. Do the following.
+
+deployment.yaml
+
+###################################
+containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+		  ###ADDED CODE FOR ENV	  
+          env: 
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+		 ###END ADDED CODE
+In django settings.py
+###############
+pod_ip = os.environ.get('POD_IP', '')
+
+ALLOWED_HOSTS = [
+            
+            '127.0.0.1',
+            'localhost',
+            pod_ip
+        ]
+#####################
+
+
+--------------------------------------------------------
+If using docker-compose.yml
+
+1. docker-compose up --build
+
+2. Once both containers are UP and running run
+
+docker-compose exec web python manage.py migrate
+
+To populate table inside the database.
+
+3. Copy sample data from local system to psql container
+
+docker cp user_car_data.sql 366342ec4477:/user_car_data.sql
+
+4. Import sample data from .sql file to database
+
+docker exec -it 366342ec4477 psql -U admin_user -d car -f /user_car_data.sql
+
+
+------------------------------------------------
+Deploying into AWS
+
+Django Application deployment in AWS
+
+1. Create Django application with database
+2. Deploy the application in aws
+
+Services Used:
+Route 53
+	simple DNS routing: intodepth.in -> Application loadbalancer
+Loadbalancer
+	Target group: myvpc + subnets
+AutoScaling
+	Launch template
+	AMI
+	
+Steps:
+
+1. Create a VPC with two public subnets and a private subnet
+2. Created Postgres database using RDS. In one of the subnet
+3. Created an EC2 instance and installed all necessary packages for the django application
+
+
+	#!/bin/bash
+	sudo apt update
+	sudo apt install python3-pip -y
+	sudo apt install python3.12-venv -y
+	sudo apt install git -y
+	sudo apt install postgresql-client -y
+	sudo ln -s /usr/bin/python3 /usr/bin/python
+	cd /home/ubuntu
+	python -m venv myenv
+	source myenv/bin/activate
+	git clone https://github.com/abdulp07-git/week18-djangoApp.git
+	cd week18-djangoApp
+	pip install -r requirements.txt
+
+
+4. Verified EC2 instance able to connect to postgre SQL in RDS
+
+	psql -h database-1.cleim0kswbg3.ap-south-1.rds.amazonaws.com -U postgres -d car
+	postgres=> CREATE DATABASE car;
+	CREATE DATABASE
+
+5. Ran python manage.py makemigration && python manage.py migrate to populate the table into database
+
+6. created an systemctl init script to replace "python manage.py runserver 0.0.0.0:8000"
+
+
+	ubuntu@ip-10-0-0-8:~/week18-djangoApp$ cat /etc/systemd/system/django.service
+	[Unit]
+	Description=Django Application
+	After=network.target
+
+	[Service]
+	User=ubuntu
+	WorkingDirectory=/home/ubuntu/week18-djangoApp
+	ExecStart=/home/ubuntu/myenv/bin/python manage.py runserver 0.0.0.0:8000
+	Restart=always
+
+	[Install]
+	WantedBy=multi-user.target
+
+
+   	sudo systemctl daemon-reload
+   	sudo systemctl enable django.service
+   	sudo systemctl start django.service
+   
+   
+
+7. created targetgroup and loadbalancer for the VPC
+
+8. Updated application settings.py allowed host with loadbalancer DNS
+
+9. Taken an image of the instance.
+
+10. Created launch template using the AMI
+    Optional:
+    Enabled Public IP for the instance by enabling 
+    Network settings  Advanced > create network interface > Enable public IP
+    
+11. Created autoscaling group using launch template.
+
+12. Route 53 hosteddomain added intodepth.in
+	Added A record for intodepth.in
+	Enabled aliace and set to loadbalancer.
+
+
+IMPORTANT:-
+
+The application directory have,
+1. Dockerfile to create the image of application. No use, We need DB as well for the app to work. So,
+2. Created docker-compose.yaml  to create image and start app and db together. It works
+3. sysctl init script for aws deployment.
+5. sample data .sql created by mockroo.com
+

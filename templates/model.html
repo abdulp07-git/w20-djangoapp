@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+ 
+{% block content %}
+<div class="container my-4">
+    <h2 class="text-center mb-4">Select a Model for {{ car_maker }}</h2>
+    <form action="{% url 'price' %}" method="GET">
+        <input type="hidden" name="carMaker" value="{{ car_maker }}">
+        
+        <div class="mb-3">
+            <label for="carModel" class="form-label">Car Model</label>
+            <select id="carModel" name="carModel" class="form-select" required>
+                <option selected disabled>Select a model</option>
+                {% for model in car_models %}
+                    <option value="{{ model.model }}">{{ model.model }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Price</button>
+    </form>
+</div>
+{% endblock %}
