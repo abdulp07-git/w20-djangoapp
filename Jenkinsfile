@@ -94,33 +94,36 @@ pipeline {
         
         
         stage('Push Helm Chart to ECR') {
-            steps {
-                script {
-                    // Push the Helm chart to ECR
-                    sh """
+    steps {
+        script {
+            // Push the Helm chart to ECR
+            sh """
     # Check if the repository exists
+    set +e
     REPO_EXISTS=\$(aws ecr describe-repositories --repository-names "${CHART_NAME}" --region "${ECR_REGION}" --query "repositories[0].repositoryName" --output text 2>/dev/null)
+    set -e
 
     if [ "\${REPO_EXISTS}" != "${CHART_NAME}" ]; then
-        
-        echo "Creating repository ${CHART_NAME}..."
+        echo "Repository does not exist. Creating repository ${CHART_NAME}..."
         aws ecr create-repository --repository-name "${CHART_NAME}" --region "${ECR_REGION}"
         echo "Repository ${CHART_NAME} created."
+    else
+        echo "Repository ${CHART_NAME} already exists."
     fi
     
     # Push the Helm chart to the ECR repository
     helm push ${CHART_NAME}-0.1.${BUILD_NUMBER}.tgz oci://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
 """
-                }
-            }
-        
-            post {
-                always {
-                    sh 'rm -f ${CHART_NAME}-0.1.${BUILD_NUMBER}.tgz'
-                }
-            }
-            
-        }        
+        }
+    }
+
+    post {
+        always {
+            sh 'rm -f ${CHART_NAME}-0.1.${BUILD_NUMBER}.tgz'
+        }
+    }
+}
+
         
         
     } // stages closed
