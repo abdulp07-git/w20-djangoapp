@@ -17,7 +17,7 @@ cd argo-rollouts/examples
 helm install example ./helm-blue-green/
 ```
 
-Your application will be deployed and exposed via the `example-helm-guestbook` service
+Your application will be deployed and exposed via the `example-helm-blue-green` service
 
 ## Perform the second deployment
 
@@ -30,7 +30,7 @@ helm upgrade example ./helm-blue-green/  --set image.tag=0.2
 Now, two versions will exist in your cluster (and each one has an associated service)
 
 ```
-kubectl-argo-rollouts get rollout example-helm-guestbook
+kubectl-argo-rollouts get rollout example-helm-blue-green
 ```
 
 ## Promoting the rollout
@@ -38,7 +38,7 @@ kubectl-argo-rollouts get rollout example-helm-guestbook
 To advance the rollout and make the new version stable
 
 ```
-kubectl-argo-rollouts promote example-helm-guestbook
+kubectl-argo-rollouts promote example-helm-blue-green
 ```
 
 This promotes container image `ks-guestbook-demo:0.2` to `green` status and `Rollout` deletes old replica which runs `ks-guestbook-demo:0.1`.

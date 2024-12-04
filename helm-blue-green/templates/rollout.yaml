@@ -1,10 +1,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
-  name: {{ template "helm-guestbook.fullname" . }}
+  name: {{ template "helm-blue-green.fullname" . }}
   labels:
-    app: {{ template "helm-guestbook.name" . }}
-    chart: {{ template "helm-guestbook.chart" . }}
+    app: {{ template "helm-blue-green.name" . }}
+    chart: {{ template "helm-blue-green.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
@@ -12,16 +12,16 @@ spec:
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      app: {{ template "helm-guestbook.name" . }}
+      app: {{ template "helm-blue-green.name" . }}
       release: {{ .Release.Name }}
   strategy:
     blueGreen:
-      activeService: {{ template "helm-guestbook.fullname" . }}
-      previewService: {{ template "helm-guestbook.fullname" . }}-preview
+      activeService: {{ template "helm-blue-green.fullname" . }}
+      previewService: {{ template "helm-blue-green.fullname" . }}-preview
   template:
     metadata:
       labels:
-        app: {{ template "helm-guestbook.name" . }}
+        app: {{ template "helm-blue-green.name" . }}
         release: {{ .Release.Name }}
     spec:
       containers:
