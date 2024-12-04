@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKERHUB_USER = credentials('dockerhub-username')
         DOCKERHUB_PASS = credentials('dockerhub-password')
-        CHART_NAME = "helm-chart"
+        CHART_NAME = "helm-blue-green"
         AWS_DEFAULT_REGION = "ap-south-1"
         AWS_CREDENTIALS_ID = "aws-ecr-credentials"
         AWS_ACCOUNT_ID = "021891584638"
