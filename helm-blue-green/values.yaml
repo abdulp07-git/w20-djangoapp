@@ -20,7 +20,11 @@ ingress:
     # kubernetes.io/tls-acme: "true"
   path: /
   hosts:
-    - "intodepth.in"
+    - host: "intodepth.in"
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+    
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
