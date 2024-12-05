@@ -64,8 +64,11 @@ pipeline {
         stage('Push Chart to S3') {
             steps {
                 sh """
-                    helm s3 init --force s3://${S3_BUCKET} || true
-                    helm s3 push ${CHART_NAME}-1.0.${BUILD_NUMBER}.tgz s3://${S3_BUCKET}
+            mkdir -p /var/lib/jenkins/.config/helm
+            touch /var/lib/jenkins/.config/helm/repositories.yaml
+            helm repo add stable https://charts.helm.sh/stable || true
+            helm s3 init --force s3://${S3_BUCKET} || true
+            helm s3 push ${CHART_NAME}-1.0.${BUILD_NUMBER}.tgz s3://${S3_BUCKET}
                 """
             }
         }
