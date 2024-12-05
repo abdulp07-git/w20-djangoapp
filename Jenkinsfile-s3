@@ -64,7 +64,7 @@ pipeline {
         stage('Push Chart to S3') {
             steps {
                 sh """
-                    helm s3 init s3://${S3_BUCKET} || true
+                    helm s3 init --force s3://${S3_BUCKET} || true
                     helm s3 push ${CHART_NAME}-1.0.${BUILD_NUMBER}.tgz s3://${S3_BUCKET}
                 """
             }
