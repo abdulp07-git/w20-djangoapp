@@ -66,9 +66,9 @@ pipeline {
                 sh """
             mkdir -p /var/lib/jenkins/.config/helm
             touch /var/lib/jenkins/.config/helm/repositories.yaml
-            helm repo add stable https://charts.helm.sh/stable || true
+            helm repo add my-s3-repo s3://${S3_BUCKET}
             helm s3 init --force s3://${S3_BUCKET} || true
-            helm s3 push ${CHART_NAME}-1.0.${BUILD_NUMBER}.tgz s3://${S3_BUCKET}
+            helm s3 push ${CHART_NAME}-1.0.${BUILD_NUMBER}.tgz my-s3-repo
                 """
             }
         }
