@@ -4,4 +4,4 @@ sed -i 's|^\([[:space:]]*repository:[[:space:]]*\).*|\1abdulp07/w20django|' ./${
 
 sed -i "s|^\([[:space:]]*tag:[[:space:]]*\).*|\1v${BUILD_NUMBER}|" ./${CHART_NAME}/values.yaml
 
-sed -i "s/^version:.*/version: 0.1.${BUILD_NUMBER}/" ./${CHART_NAME}/Chart.yaml
+sed -i "s/^version:.*/version: 1.0.${BUILD_NUMBER}/" ./${CHART_NAME}/Chart.yaml

@@ -1,0 +1,77 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKERHUB_USER = credentials('dockerhub-username')
+        DOCKERHUB_PASS = credentials('dockerhub-password')
+        CHART_NAME = "helm-blue-green"
+        AWS_DEFAULT_REGION = "ap-south-1"
+        AWS_CREDENTIALS_ID = "aws-ecr-credentials"
+        AWS_ACCOUNT_ID = "021891584638"
+        ECR_REPO = 'abdulp07'
+        ECR_REGION = "ap-south-1"
+        S3_BUCKET = "w20-helm-charts"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Clone the GitHub repository
+                git 'https://github.com/abdulp07-git/w20-djangoapp.git'
+            }
+        }
+
+        stage('Build Django Image') {
+            steps {
+                script {
+                    def dockerImage = "abdulp07/w20django"
+                    def tag = "v${BUILD_NUMBER}"
+                    def fullImageName = "${dockerImage}:${tag}"
+                    sh "docker build -t ${fullImageName} ."
+                }
+            }
+        }
+
+        stage('Push Image to Docker Hub') {
+            steps {
+                script {
+                    def dockerImage = "abdulp07/w20django"
+                    def tag = "v${BUILD_NUMBER}"
+                    def fullImageName = "${dockerImage}:${tag}"
+                    sh '''
+                        echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
+                    '''
+                    sh "docker push ${fullImageName}"
+                }
+            }
+
+            post {
+                always {
+                    sh 'docker logout'
+                    sh "docker rmi abdulp07/w20django:v${BUILD_NUMBER}"
+                }
+            }
+        }
+
+        stage('Update Tag in Charts') {
+            steps {
+                sh './replacetag.sh'
+                sh "helm package ${CHART_NAME} --version 1.0.${BUILD_NUMBER}"
+            }
+        }
+        
+
+        stage('Push Chart to S3') {
+            steps {
+                sh """
+                    helm s3 init s3://${S3_BUCKET} || true
+                    helm s3 push ${CHART_NAME}-1.0.${BUILD_NUMBER}.tgz s3://${S3_BUCKET}
+                """
+            }
+        }
+        
+
+        
+        
+    }
+}

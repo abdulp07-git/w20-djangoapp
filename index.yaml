@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  helm-blue-green:
+  - apiVersion: v2
+    appVersion: 1.0.6
+    created: "2024-12-05T13:53:22.981264327+05:30"
+    description: A Helm chart for Kubernetes
+    digest: 28e7f2bc55f92dc4966d78f62695feb922d02c1ad94d46a34d958c3497a070b4
+    name: helm-blue-green
+    type: application
+    urls:
+    - https://w20-helm-charts.s3.ap-south-1.amazonaws.com/helm-blue-green-1.0.6.tgz
+    version: 1.0.6
+generated: "2024-12-05T13:53:22.980777761+05:30"
